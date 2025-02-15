@@ -173,6 +173,73 @@ def total_gold_ticket_sales():
         f.write(str(result))
     conn.close()
 
+# Task B3: Fetch data from an API and save it
+def fetch_api_data():
+    api_url = "https://api.example.com/data"
+    response = requests.get(api_url)
+    data = response.json()
+    output_file = DATA_DIR / "api-data.json"
+    with output_file.open("w") as f:
+        json.dump(data, f)
+
+# Task B4: Clone a git repo and make a commit
+def git_clone_and_commit():
+    repo_url = "https://github.com/example/repo.git"
+    repo_dir = DATA_DIR / "repo"
+    run_subprocess(["git", "clone", repo_url, repo_dir])
+    with open(repo_dir / "file.txt", "w") as f:
+        f.write("New content")
+    run_subprocess(["git", "add", "."], cwd=repo_dir)
+    run_subprocess(["git", "commit", "-m", "Added new content"], cwd=repo_dir)
+
+# Task B5: Run a SQL query on a SQLite or DuckDB database
+def query_database():
+    db_file = DATA_DIR / "database.db"
+    secure_path_check(db_file)
+    conn = sqlite3.connect(db_file)
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM users")
+    result = cursor.fetchall()
+    output_file = DATA_DIR / "db-query-results.txt"
+    with output_file.open("w") as f:
+        f.write(json.dumps(result))
+    conn.close()
+
+# Task B6: Extract data from a website (web scraping)
+# Task B7: Compress or resize an image
+def resize_image():
+    image_file = DATA_DIR / "image.png"
+    secure_path_check(image_file)
+    output_file = DATA_DIR / "image-resized.png"
+    run_subprocess(["convert", image_file, "-resize", "50%", output_file])
+
+# Task B8: Transcribe audio from an MP3 file
+def transcribe_audio():
+    audio_file = DATA_DIR / "audio.mp3"
+    secure_path_check(audio_file)
+    output_file = DATA_DIR / "audio-transcription.txt"
+    run_subprocess(["ffmpeg", "-i", audio_file, output_file])
+
+# Task B9: Convert Markdown to HTML
+def convert_markdown_to_html():
+    markdown_file = DATA_DIR / "doc.md"
+    secure_path_check(markdown_file)
+    output_file = DATA_DIR / "doc.html"
+    run_subprocess(["pandoc", markdown_file, "-o", output_file])
+
+# Task B10: Write an API endpoint that filters a CSV file and returns JSON data
+def filter_csv_file():
+    csv_file = DATA_DIR / "data.csv"
+    secure_path_check(csv_file)
+    output_file = DATA_DIR / "filtered.json"
+    with open(csv_file, newline='') as f:
+        reader = csv.DictReader(f)
+        filtered_rows = [row for row in reader if row['status'] == 'active']
+    with open(output_file, 'w') as f:
+        json.dump(filtered_rows, f)
+
+
+
 # API endpoints
 @app.post("/run")
 async def run_task(task: str):
@@ -196,6 +263,21 @@ async def run_task(task: str):
         find_similar_comments()
     elif "ticket sales" in task:
         total_gold_ticket_sales()
+    # Task B handling
+    elif "fetch api data" in task:
+        fetch_api_data()
+    elif "git commit" in task:
+        git_clone_and_commit()
+    elif "query database" in task:
+        query_database()
+    elif "resize image" in task:
+        resize_image()
+    elif "transcribe audio" in task:
+        transcribe_audio()
+    elif "markdown to html" in task:
+        convert_markdown_to_html()
+    elif "filter csv" in task:
+        filter_csv_file()
     else:
         raise HTTPException(status_code=400, detail="Task not recognized")
     
